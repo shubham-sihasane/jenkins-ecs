@@ -1,2 +1,2 @@
-# Complete_CICD_02
-Complete CICD 02
+# Simple_NodeJS_App
+Simple NodeJS App Deployment
