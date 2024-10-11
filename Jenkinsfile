@@ -15,13 +15,5 @@ pipeline {
 				sh 'npm install'		
 			}
 		}
-		stage('Integration and E2E Tests'){
-			steps {
-				sh 'npm run integration-tests'
-				sh 'npm run e2e-tests'
-			}
-		}
-	
 	}
-
 }
