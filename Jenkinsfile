@@ -35,5 +35,12 @@ pipeline {
 				}
 			}
 		}
+		stage('Docker Image'){
+			steps {
+				script {
+					docker.build("${BUILD_ID}:latest")
+				}
+			}
+		}
 	}
 }
