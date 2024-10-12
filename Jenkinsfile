@@ -42,5 +42,10 @@ pipeline {
 				}
 			}
 		}
+		stage('Trivy Scan'){
+			steps {
+				sh 'trivy --severity HIGH,CRITICAL --no-progress --format table -o trivy-report.html image ${BUILD_ID}:latest'
+			}
+		}
 	}
 }
