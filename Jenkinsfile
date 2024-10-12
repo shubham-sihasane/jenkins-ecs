@@ -6,6 +6,7 @@ pipeline {
 	environment {
 		SONAR_PROJECT_KEY = 'complete-cicd-02'
 		SONAR_SCANNER_HOME = tool 'SonarQubeScanner'
+		JOB_NAME_NOW = 'cicd02'
 	}
 	stages {
 		stage('GitHub'){
@@ -38,13 +39,13 @@ pipeline {
 		stage('Docker Image'){
 			steps {
 				script {
-					docker.build("${JOB_NAME}:latest")
+					docker.build("${JOB_NAME_NOW}:latest")
 				}
 			}
 		}
 		stage('Trivy Scan'){
 			steps {
-				sh 'trivy --severity HIGH,CRITICAL --no-progress --format table -o trivy-report.html image ${JOB_NAME}:latest'
+				sh 'trivy --severity HIGH,CRITICAL --no-progress --format table -o trivy-report.html image ${JOB_NAME_NOW}:latest'
 			}
 		}
 	}
