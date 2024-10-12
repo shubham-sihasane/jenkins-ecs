@@ -10,8 +10,6 @@ pipeline {
 		ECR_REPO = 'iquantawsrepo'
 		IMAGE_TAG = 'latest'
 		ECR_REGISTRY = '358966077154.dkr.ecr.us-east-1.amazonaws.com'
-		ECS_CLUSTER = 'iquant-ecs'
-		ECS_SERVICE = 'iquant-ecs-svc'
 	}
 	stages {
 		stage('GitHub'){
@@ -65,16 +63,6 @@ pipeline {
 				script {
 				docker.image("${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}").push()
 				}
-			}
-		}
-		stage('Deploy to ECS'){
-			steps {
-				sh """
-				aws ecs update-service 	--cluster ${ECS_CLUSTER} \
-							--service ${ECS_SERVICE} \
-							--force-new-deployment \
-							--region us-east-1	
-				"""
 			}
 		}
 	}
