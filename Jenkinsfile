@@ -38,13 +38,13 @@ pipeline {
 		stage('Docker Image'){
 			steps {
 				script {
-					docker.build("${BUILD_ID}:latest")
+					docker.build("${JOB_NAME}:latest")
 				}
 			}
 		}
 		stage('Trivy Scan'){
 			steps {
-				sh 'trivy --severity HIGH,CRITICAL --no-progress --format table -o trivy-report.html image ${BUILD_ID}:latest'
+				sh 'trivy --severity HIGH,CRITICAL --no-progress --format table -o trivy-report.html image ${JOB_NAME}:latest'
 			}
 		}
 	}
