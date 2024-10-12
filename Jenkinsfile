@@ -13,6 +13,7 @@ pipeline {
 		ECS_CLUSTER = 'iquant-ecs'
 		ECS_SERVICE = 'iquant-ecs-svc'
 		ALB_TARGET_GROUP_ARN = 'ecs-iquant-svc-tg'
+		TASK_DEFINITION_FAMILY = 'iquant-ecs-task-def'
 	}
 	stages {
 		stage('GitHub'){
@@ -68,6 +69,15 @@ pipeline {
 				}
 			}
 		}
+		stage('Register ECS Task Definition') {
+            		steps {
+                		sh """
+                		TASK_DEF=$(aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY)
+                		NEW_TASK_DEF=$(echo $TASK_DEF | jq --arg IMAGE "${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" '.taskDefinition.containerDefinitions[0].image = $IMAGE')
+                		aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEF"
+                		"""
+            		}
+        	}
 		stage('Update ECS Service'){
 			steps {
 				sh """
