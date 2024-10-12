@@ -10,6 +10,9 @@ pipeline {
 		ECR_REPO = 'iquantawsrepo'
 		IMAGE_TAG = 'latest'
 		ECR_REGISTRY = '358966077154.dkr.ecr.us-east-1.amazonaws.com'
+		ECS_CLUSTER = 'iquant-ecs'
+		ECS_SERVICE = 'iquant-ecs-svc'
+		ALB_TARGET_GROUP_ARN = 'ecs-iquant-svc-tg'
 	}
 	stages {
 		stage('GitHub'){
@@ -63,6 +66,27 @@ pipeline {
 				script {
 				docker.image("${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}").push()
 				}
+			}
+		}
+		stage('Update ECS Service'){
+			steps {
+				sh """
+				aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment 
+				"""
+			}
+		}
+		stage('Wait for ECS SVC'){
+			steps {
+				sh """
+				aws ecs wait services-stable --cluster $ECS_CLUSTER --service $ECS_SERVICE
+				"""
+			}
+		}
+		stage('Load Balancer'){
+			steps {
+				sh """
+				aws elbv2 describe-target-health --target-group-arn $ALB_TARGET_GROUP_ARN
+				"""
 			}
 		}
 	}
