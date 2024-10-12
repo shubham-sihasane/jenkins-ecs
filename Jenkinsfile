@@ -71,11 +71,11 @@ pipeline {
 		}
 		stage('Register ECS Task Definition') {
             		steps {
-                		sh """
+                		sh '''
                 		TASK_DEF=$(aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY)
-                		NEW_TASK_DEF=$(echo $TASK_DEF | jq --arg IMAGE "${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" '.taskDefinition.containerDefinitions[0].image = $IMAGE')
+                		NEW_TASK_DEF=$(echo $TASK_DEF | jq --arg IMAGE "${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" ".taskDefinition.containerDefinitions[0].image = $IMAGE")
                 		aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEF"
-                		"""
+                		'''
             		}
         	}
 		stage('Update ECS Service'){
