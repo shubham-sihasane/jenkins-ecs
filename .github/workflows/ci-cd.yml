@@ -1,4 +1,4 @@
-name: CI/CD Pipeline with Actions
+name: CI/CD Pipeline
 
 on:
   push:
@@ -11,11 +11,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    run-on: ubuntu-latest
 
 
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v3
 
