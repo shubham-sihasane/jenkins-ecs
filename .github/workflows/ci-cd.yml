@@ -28,4 +28,17 @@ jobs:
       # Install NPM dependencies
       - name: Install NPM dependencies
         run: npm install
+
+      # Install SonarQube Scanner
+      - name: Install SonarQube Scanner
+        run: npm install -g sonarqube-scanner
+
+      # SonarQube Analysis
+      - name: SonarQube Analysis
+        run: sonarqube-scanner \
+          -Dsonar.projeckKey=sonar-github-actions-cicd \
+          -Dsonar.sources=.\
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+          -Dsonar.login= ${{ secrets.SONAR_TOKEN}}
+
       
