@@ -29,12 +29,18 @@ jobs:
       - name: Install NPM dependencies
         run: npm install
 
+      # Install SonarQube Scanner Manually
+      - name: Install SonarQube Scanner
+        run: |
+          curl -sL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip > sonar-scanner.zip
+          unzip sonar-scanner.zip
+          mv sonar-scanner-4.6.2.2472-linux sonar-scanner
+          export PATH=$PATH:$(pwd)/sonar-scanner/bin
+
       # SonarQube Analysis
       - name: SonarQube Analysis
-        uses: SonarSource/sonarcloud-github-action@v1.2
-        with: 
-          projectBaseDir: .
-        env: 
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
-      
+        run: sonarqube-scanner \
+          -Dsonar.projeckKey=sonar-github-actions-cicd \
+          -Dsonar.sources=.\
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+          -Dsonar.login= ${{ secrets.SONAR_TOKEN}}
