@@ -39,7 +39,7 @@ jobs:
       # Wait for SonarQube to be ready
       - name: Wait for SonarQube
         run: |
-          until curl -s http://localhost:9000; do
+          until curl -s http://sonarqube:9000; do
             echo "Waiting for SonarQube to start..."
             sleep 10
           done
@@ -50,7 +50,7 @@ jobs:
           sonar-scanner \
           -Dsonar.projectKey=your_project_key \
           -Dsonar.sources=. \
-          -Dsonar.host.url=http://localhost:9000 \
+          -Dsonar.host.url=http://sonarqube:9000 \
           -Dsonar.login=admin \
           -Dsonar.password=admin  # Default admin credentials for SonarQube
       
