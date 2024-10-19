@@ -43,19 +43,19 @@ jobs:
       #    done
 
       # Wait for SonarQube to be ready
-      - name: Wait for SonarQube
-        run: |
-          attempt=0
-          until curl -s http://sonarqube:9000/about || [ $attempt -ge 30 ]; do
-            echo "Waiting for SonarQube to start..."
-            sleep 20
-            attempt=$((attempt+1))
-          done
+      #      - name: Wait for SonarQube
+      # run: |
+      #   attempt=0
+      #   until curl -s http://sonarqube:9000/about || [ $attempt -ge 30 ]; do
+      #     echo "Waiting for SonarQube to start..."
+      #     sleep 20
+      #     attempt=$((attempt+1))
+      #   done
 
-          if [ $attempt -ge 30 ]; then
-            echo "SonarQube did not start in time."
-            exit 1
-          fi
+          #   if [ $attempt -ge 30 ]; then
+          # echo "SonarQube did not start in time."
+          # exit 1
+          # fi
 
       # Run SonarQube analysis
       - name: Run SonarQube analysis
