@@ -13,10 +13,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      sonarqube:
-        image: sonarqube:latest
-        options: --memory=4g --health-cmd="curl http://sonarqube:9000/about || exit 1" --health-interval=10s --health-timeout=5s --health-retries=5
 
     steps:
       # Checkout Code
@@ -34,36 +30,4 @@ jobs:
         run: npm install
 
       
-      # Wait for SonarQube to be ready
-      #- name: Wait for SonarQube
-      #  run: |
-      #    until curl -s http://sonarqube:9000; do
-      #      echo "Waiting for SonarQube to start..."
-      #      sleep 10
-      #    done
-
-      # Wait for SonarQube to be ready
-      #      - name: Wait for SonarQube
-      # run: |
-      #   attempt=0
-      #   until curl -s http://sonarqube:9000/about || [ $attempt -ge 30 ]; do
-      #     echo "Waiting for SonarQube to start..."
-      #     sleep 20
-      #     attempt=$((attempt+1))
-      #   done
-
-          #   if [ $attempt -ge 30 ]; then
-          # echo "SonarQube did not start in time."
-          # exit 1
-          # fi
-
-      # Run SonarQube analysis
-      - name: Run SonarQube analysis
-        run: |
-          sonar-scanner \
-          -Dsonar.projectKey=your_project_key \
-          -Dsonar.sources=. \
-          -Dsonar.host.url=http://sonarqube:9000 \
-          -Dsonar.login=admin \
-          -Dsonar.password=admin  # Default admin credentials for SonarQube
       
