@@ -16,9 +16,7 @@ jobs:
     services:
       sonarqube:
         image: sonarqube:latest
-        options: --health-cmd='curl http://sonarqube:9000/about || exit 1' --health-interval=10s --health-timeout=5s --health-retries=5
-        ports:
-          - 9000:9000
+        options: --health-cmd="curl http://sonarqube:9000/about || exit 1" --health-interval=10s --health-timeout=5s --health-retries=5
 
     steps:
       # Checkout Code
