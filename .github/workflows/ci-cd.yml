@@ -16,7 +16,7 @@ jobs:
     services:
       sonarqube:
         image: sonarqube:latest
-        options: --health-cmd="curl http://sonarqube:9000/about || exit 1" --health-interval=10s --health-timeout=5s --health-retries=5
+        options: --memory=4g --health-cmd="curl http://sonarqube:9000/about || exit 1" --health-interval=10s --health-timeout=5s --health-retries=5
 
     steps:
       # Checkout Code
@@ -35,14 +35,29 @@ jobs:
 
       
       # Wait for SonarQube to be ready
+      #- name: Wait for SonarQube
+      #  run: |
+      #    until curl -s http://sonarqube:9000; do
+      #      echo "Waiting for SonarQube to start..."
+      #      sleep 10
+      #    done
+
+      # Wait for SonarQube to be ready
       - name: Wait for SonarQube
         run: |
-          until curl -s http://sonarqube:9000; do
+          attempt=0
+          until curl -s http://sonarqube:9000/about || [ $attempt -ge 30 ]; do
             echo "Waiting for SonarQube to start..."
-            sleep 10
+            sleep 20
+            attempt=$((attempt+1))
           done
 
-    # Run SonarQube analysis
+          if [ $attempt -ge 30 ]; then
+            echo "SonarQube did not start in time."
+            exit 1
+          fi
+
+      # Run SonarQube analysis
       - name: Run SonarQube analysis
         run: |
           sonar-scanner \
