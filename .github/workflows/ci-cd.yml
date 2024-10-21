@@ -45,7 +45,7 @@ jobs:
       # Log in to Amazon ECR
       - name: Log in to Amazon ECR
         run: |
-          aws ecr get-login-password --region ${{secrets.AWS_REGION}} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY_URI}}
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION}} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY_URI }}
 
 
 
