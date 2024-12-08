@@ -1,4 +1,5 @@
 pipeline {
+	agent any
 	stages{
 		stage{('git clde colne')
 			steps{
