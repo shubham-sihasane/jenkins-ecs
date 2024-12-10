@@ -4,12 +4,13 @@ pipeline{
     stages{
         stage ('clone code'){
             steps{
-                echo "hello World"
+                git branch: 'main', credentialsId: 'Git-token_personal_account', url: 'https://github.com/DeepDN/Nodejs-CICD-pipeline.git'
             }
         }
         stage ('unit test'){
             steps{
-                echo "2nd stage"
+                sh 'npm test'
+                sh 'npm install'
             }
         }
     }
