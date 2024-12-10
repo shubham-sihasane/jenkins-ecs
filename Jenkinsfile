@@ -5,7 +5,7 @@ pipeline{
     // } 
     environment {
         SONAR_PROJECT_KEY = 'nodsjs_cici_pipeline'
-        SONAR_SCANNER_HOME = tools 'SonarQubeScanner'
+        SONAR_SCANNER_HOME = tools 'sonarqubescanner'
             
     }
 
