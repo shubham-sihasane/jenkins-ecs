@@ -3,11 +3,11 @@ pipeline{
     // tools{
         // nodejs 'NodeJS'
     // } 
-    environment {
-        SONAR_PROJECT_KEY = 'nodsjs_cici_pipeline'
-        SONAR_SCANNER_HOME = tools 'sonarqubescanner'
+    // environment {
+    //     SONAR_PROJECT_KEY = 'nodsjs_cici_pipeline'
+    //     SONAR_SCANNER_HOME = tools 'sonarqubescanner'
             
-    }
+    // }
 
     stages{
         stage ('clone code'){
