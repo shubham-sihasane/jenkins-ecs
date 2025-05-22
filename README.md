@@ -62,6 +62,58 @@ The video demonstrates the creation of an end-to-end Continuous Integration and 
 
 ---
 
+### Set up Jenkins 
+Run the command below to create the Jenkins Container:
+```sh
+docker run -d --name jenkins-dind \
+-p 8080:8080 -p 50000:50000 \
+-v /var/run/docker.sock:/var/run/docker.sock \
+-v $(which docker):/usr/bin/docker \
+-u root \
+-e DOCKER_GID=$(getent group docker | cut -d: -f3) \
+jenkins/jenkins:lts
+```
+
+Check Running Docker Container
+```sh
+docker ps
+```
+
+Log into the Jenkins container
+```sh
+docker exec -it jenkins-dind bash
+```
+Run the following bash commands in the Jenkins Container's Terminal:
+```sh
+groupadd -for -g $DOCKER_GID docker
+usermod -aG docker jenkins
+exit
+```
+```sh
+docker restart jenkins-dind
+```
+
+Check the Jenkins Container Logs to Get Jenkins' Initial Admin Password
+```sh
+docker logs -f jenkins-dind
+```
+
+On your browser, open:
+```sh 
+PublicIP:8080
+```
+Paste Initial Admin Password & Install Suggested Plugins
+Create an Admin User Account with username & password, email, etc.
+
+
+### Configure Jenkins & GitHub Integration
+Create 
+
+
+
+
+
+
 ## Resource Cleanup
 To maintain cost efficiency, ensure proper deletion of:
 - Target groups
