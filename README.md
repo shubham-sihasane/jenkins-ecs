@@ -62,7 +62,7 @@ The video demonstrates the creation of an end-to-end Continuous Integration and 
 
 ---
 
-### Set up Jenkins 
+## Set up Jenkins 
 Run the command below to create the Jenkins Container:
 ```sh
 docker run -d --name jenkins-dind \
@@ -106,12 +106,202 @@ Paste Initial Admin Password & Install Suggested Plugins
 Create an Admin User Account with username & password, email, etc.
 
 
-### Configure Jenkins & GitHub Integration
-Create 
+## Configure Jenkins & GitHub Integration
+
+***Create a Classic Personal Access Token on GitHub***
+On your GitHub Account, 
+
+   1. Click on the User Account
+   2. Click on Settings
+   3. Developer settings, and select Personal access tokens and Click Tokens (classic)
+   4. Generate new token, and select Generate new token (classic)
+         Note: jenkins-git-dind, Expiration: 90 days, and
+               Scopes (select the following):
+                  repo
+                  admin:repo_hook (For Webhooks)
+         Generate token & save it somewhere safe
+
+***Add the GitHub Personal Access Token to Jenkins Credentials***
+On the Jenkins UI,  
+
+   1. Click on Manage Jenkins
+   2. Click Credentials
+   3. Under System, click global, and Add Credentials
+   4. Select Kind: "Username with password", Scope: Global, Password: "Paste the jenkins-git-dind here", ID: "jen-git-dind", and Description: "jen-git-dind". Create.
+
+***Create Jenkinsfile (a.k.a Pipeline As A Code)***
 
 
+## Set up Sonarqube 
+
+***Set the following Recommended Values***
+Change your user to root first,
+```sh
+sudo su
+```
+or
+```sh
+ sudo i
+```
+Run the commands:
+```sh
+sysctl -w vm.max_map_count=524288
+sysctl -w fs.file-max=131072
+ulimit -n 131072
+ulimit -u 8192
+```
+Exit the Root User:
+```sh
+exit
+```
+
+Run the command below to create the SonarQube Container (Give it a few minutes to get ready):
+```sh
+docker run -d --name sonarqube-dind \
+-e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
+-p 9000:9000 \
+sonarqube:latest
+```
+
+Check the logs of the SonarQube Container:
+```sh
+docker logs -f sonarqube-dind
+```
+
+On your browser, open:
+```sh 
+PublicIP:9000
+```
+Username: admin
+Password: admin
+Update your password by providing a new password
+
+Create a Local Project in SonarQube with Project key, GitHub branch (main), and "Use the global setting".
+
+Create a SonarQube Token and Add it to Jenkins Credentials:
+   1. Click on the User Account, and click on "My Account"
+   2. Go to Security, create a token of type "Global Analysis Token", and expiry date
+   3. Copy and Save the token somewhere safe.
+   4. Go to Jenkins Credentials, select Kind "Secret text", Paste sonar token as the secret and provide ID and description
+
+Go to Jenkins > Manage Jenkins > Systems > SonarQube Installation, and add the SonarQube URL (http://PublicIP:9000) and select the token. Apply and Save. 
+
+Go to Jenkins > Manage Jenkins > Add SonarQube Scanner (Install Automatically). Save and Apply
 
 
+***Put Both Jenkins and SonarQube Containers on the same Docker Network***
+```sh
+docker network ls
+```
+Create Docker Network: 
+```sh
+docker network create dind-network
+```
+Add Jenkins and SonarQube Containers to dind-network:
+```sh
+docker network connect dind-network jenkins-dind
+```
+```sh
+docker network connect dind-network sonarqube-dind
+```
+
+***Login to Jenkins Container & Establish Communication to the SonarQube Container***
+```sh
+docker exec -it jenkins-dind bash
+```
+Update & Install Ping in Jenkins Container once you've logged in:
+```sh
+apt-get update
+apt-get install unzip curl iputils-ping -y
+```
+
+Use Jenkins Container bash to Ping SonarQube Container:
+```sh
+docker exec -it jenkins-dind ping sonarqube-dind
+```
+You should be seeing bytes of data coming in showing established connection between the 2 containers.
+Exit the Jenkins Container:
+```sh
+exit
+```
+
+
+## Set up Trivy
+Login to the Jenkins Container:
+```sh
+docker exec -it jenkins-dind bash
+```
+Check if Trivy is installed in the Jenkins Container:
+```sh
+trivy --version
+```
+```sh
+curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.62.1
+```
+Check if Trivy Installation was a success & exit: 
+```sh
+trivy --version
+exit
+```
+
+Restart the Jenkins Container (optional but recommended):
+```sh
+docker restart jenkins-dind
+```
+
+## Set up AWS CLI & AWS IAM USER
+Log in to the Jenkins Container:
+```sh
+docker exec -it jenkins-dind bash
+```
+```sh
+apt-get update -y
+apt-get install unzip curl -y
+```
+```sh
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+./aws/install
+```
+Check AWS CLI version
+```sh
+aws --version
+```
+
+Go to AWS Mgt Console > IAM > Create IAM User (Attach AmazonEC2ContainerRegistryFullAccess policy)
+
+Go to the IAM User > Click Security credentials > Create Access Keys (with CLI use-case) > Create & Download Access keys. 
+
+On your terminal, login to Jenkins Container
+```sh
+docker exec -it jenkins-dind bash
+```
+
+***Configure AWS IAM User***
+```sh
+aws configure
+```
+Copy and Paste Access key ID, Secret Access key, Region, etc. and exit
+
+Note: Add Access key ID & Secret Access key to Jenkins credentials as Kind: AWS Credentials.
+
+
+***Create Amazon ECR Repository on AWS Mgt Console, and that should provide the links to login, tag, and push image to ECR***
+
+***Next, create Amazon ECS Cluster (Fargate) on AWS Mgt Console, to serve the docker image pushed to Amazon ECR***
+1. Create cluster > Select Fargate
+2. Click on Task definition on the left panel and create a new one, and add the instance type, task role, task execution role, container details, etc., and create
+3. Go into the ECS cluster created earlier and create a Service to expose the container to the public internet
+
+
+***Jenkins Plugins Needed*** 
+Install the following plugins:
+   1. SonarQube Scanner 
+   2. Sonar Quality Gates
+   3. Pipeline
+   4. Docker pipeline
+   5. Docker plugin
+   6. AWS SDK
 
 
 ## Resource Cleanup
