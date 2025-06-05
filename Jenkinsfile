@@ -25,6 +25,11 @@ pipeline {
         echo "Node dependencies installed successfully."
       }
     }
+    stage('Trivy Filescan') {
+      steps {
+        sh 'trivy fs --format table -o trivy-fs-report.html .'
+      }
+    }
     stage('Unit Testing') {
       steps {
         sh 'npm test'
@@ -52,22 +57,28 @@ pipeline {
       steps {
         script {
           withDockerRegistry(credentialsId: 'DockerRegistry') {
-            sh '''
+            sh """
               docker build -t $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG -f Dockerfile .
-              docker image tag $DOCKER_REGISTRY/$DOCKER_REPOSITORY:DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:DOCKER_IMAGE_TAG
-            '''
+              docker image tag $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:DOCKER_IMAGE_TAG
+              docker image tag $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:latest
+            """
           }
         }
       }
     }
-     stage('Image Push') {
+    stage('Image Scan') {
+      steps {
+        sh 'trivy --severity HIGH,CRITICAL --format table -o trivy-image-report.html image $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG'
+      }
+    }
+    stage('Image Push') {
       steps {
         script {
           withDockerRegistry(credentialsId: 'DockerRegistry') {
-            sh '''
-              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:DOCKER_IMAGE_TAG
-              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:latest
-            '''
+            sh """
+              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG
+              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:latest
+            """
           }
         }
       }
