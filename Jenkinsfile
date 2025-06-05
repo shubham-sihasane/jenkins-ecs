@@ -8,6 +8,9 @@ pipeline {
   environment {
     SCANNER_HOME = tool 'sonarscanner'
     APP_NAME = "ElasticApp"
+    DOCKER_REGISTRY = "sihasaneshubham"
+    DOCKER_REPOSITORY = 'elastic-app'
+    DOCKER_IMAGE_TAG = "${BUILD_NUMBER}"
   }
 
   stages {
@@ -41,7 +44,31 @@ pipeline {
     stage("Quality Gate") {
       steps {
         timeout(time: 1, unit: 'HOURS') {
-          waitForQualityGate abortPipeline: false
+          waitForQualityGate abortPipeline: true
+        }
+      }
+    }
+    stage('Build Image') {
+      steps {
+        script {
+          withDockerRegistry(credentialsId: 'DockerRegistry') {
+            sh '''
+              docker build -t $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG -f Dockerfile .
+              docker image tag $DOCKER_REGISTRY/$DOCKER_REPOSITORY:DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:DOCKER_IMAGE_TAG
+            '''
+          }
+        }
+      }
+    }
+     stage('Image Push') {
+      steps {
+        script {
+          withDockerRegistry(credentialsId: 'DockerRegistry') {
+            sh '''
+              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:DOCKER_IMAGE_TAG
+              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:latest
+            '''
+          }
         }
       }
     }
