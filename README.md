@@ -1,5 +1,6 @@
 # Simple_NodeJS_App
-A Simple Node.js Application Deployment Example
+In this video, we'll walk you through building a Complete CI/CD Pipeline using GitHub, Jenkins (running in a container), SonarQube (containerized), NPM, Docker, Trivy, Amazon ECR, and deploying to Amazon ECS with Fargate. This end-to-end pipeline will automate the process from code commit to production deployment with security and quality checks.
+
 
 ## Video Link
 Watch the comprehensive tutorial on YouTube: [CI/CD Pipeline with Jenkins, Docker, and AWS ECS](https://www.youtube.com/watch?v=uGWF3meicAk&t=1827s)
