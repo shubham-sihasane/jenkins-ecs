@@ -5,6 +5,11 @@ pipeline {
     nodejs 'nodejs24'
   }
 
+  environment {
+    SCANNER_HOME = tool 'sonarscanner'
+    APP_NAME = "ElasticApp"
+  }
+
   stages {
     stage('Clone Repository') {
       steps {
@@ -23,6 +28,26 @@ pipeline {
         echo "Unit testing completed successfully."
       }
     }
+    stage('Sonarqube Analysis') {
+      steps {
+        withSonarQubeEnv('sonarserver') {
+          sh '''
+            $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=$APP_NAME -Dsonar.projectKey=$APP_NAME -Dsonar.sources=.
+            echo $SCANNER_HOME
+          '''
+        }
+      }
+    }
+    stage("Quality Gate") {
+      steps {
+        timeout(time: 1, unit: 'HOURS') {
+          waitForQualityGate abortPipeline: false
+        }
+      }
+    }
   }
 
 }
+
+
+        
