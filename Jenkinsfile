@@ -76,8 +76,8 @@ pipeline {
         script {
           withDockerRegistry(credentialsId: 'DockerRegistry') {
             sh """
-              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG
-              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_REPOSITORY:latest
+              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG
+              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:latest
             """
           }
         }
