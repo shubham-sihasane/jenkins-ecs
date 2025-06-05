@@ -8,7 +8,8 @@ pipeline {
   environment {
     SCANNER_HOME = tool 'sonarscanner'
     APP_NAME = "ElasticApp"
-    DOCKER_REGISTRY = "sihasaneshubham"
+    //DOCKER_REGISTRY = "sihasaneshubham"
+    DOCKER_REGISTRY = "680829786414.dkr.ecr.ap-south-1.amazonaws.com"
     DOCKER_REPOSITORY = 'elastic-app'
     DOCKER_IMAGE_TAG = "${BUILD_NUMBER}"
   }
@@ -71,16 +72,25 @@ pipeline {
         sh 'trivy --severity HIGH,CRITICAL --format table -o trivy-image-report.html image $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG'
       }
     }
-    stage('Image Push') {
+    // stage('Image Push') {
+    //   steps {
+    //     script {
+    //       withDockerRegistry(credentialsId: 'DockerRegistry') {
+    //         sh """
+    //           docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG
+    //           docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:latest
+    //         """
+    //       }
+    //     }
+    //   }
+    // }
+    stage('Push Image to ECR') {
       steps {
-        script {
-          withDockerRegistry(credentialsId: 'DockerRegistry') {
-            sh """
-              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG
-              docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:latest
-            """
-          }
-        }
+        sh """
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin $DOCKER_REGISTRY
+          docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:$DOCKER_IMAGE_TAG
+          docker image push $DOCKER_REGISTRY/$DOCKER_REPOSITORY:latest
+        """
       }
     }
   }
